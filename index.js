@@ -3,6 +3,7 @@ import mongoose from "mongoose"
 import profileRoute from "./routes/profileRoute.js"
 import dotenv from "dotenv"
 import cors from "cors"
+
 dotenv.config()
 
 const app = express();
@@ -23,9 +24,22 @@ mongoose.connection.on('disconnected', () => {
   console.log('mongoDB disconnected');
 });
 
+
 // Middleware
+app.use(express.static('uploads'));
 app.use(express.json());
 app.use(cors())
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+// Error handling middleware
+app.use((error, req, res, next) => {
+  console.error(error.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
 
 // Routes
 app.use('/api', profileRoute);
